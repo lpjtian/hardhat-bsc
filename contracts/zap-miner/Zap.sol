@@ -192,13 +192,13 @@ contract Zap {
      * @param _disputeId is the dispute id
      */
     function tallyVotes(uint256 _disputeId) external {
-        (address _from, address _to, uint256 _disputeFee) = zap.tallyVotes(
-            _disputeId
-        );
+
+        (address _from, address _to, uint256 _disputeFee) = zap.tallyVotes(_disputeId);
 
         approve(_from, _disputeFee);
-        // token.transferFrom(_from, _to, _disputeFee);
-        doTransfer(_from, _to, _disputeFee);
+        token.transferFrom(_from, _to, _disputeFee);
+        // doTransfer(_from, _to, _disputeFee);
+
     }
 
     /**
@@ -207,6 +207,8 @@ contract Zap {
      */
     function proposeFork(address _propNewZapAddress) external {
         zap.proposeFork(_propNewZapAddress);
+        token.transferFrom(msg.sender, address(this), zap.uintVars[keccak256('disputeFee')]);
+
     }
 
     /**
@@ -268,7 +270,8 @@ contract Zap {
 
             //If the tip > 0 it tranfers the tip to this contract
             if (_tip > 0) {
-                doTransfer(msg.sender, address(this), _tip);
+                // doTransfer(msg.sender, address(this), _tip);
+                token.transferFrom(msg.sender, address(this), _tip);
             }
             updateOnDeck(_requestId, _tip);
             emit DataRequested(
@@ -307,15 +310,25 @@ contract Zap {
 
         uint256 minerReward = zap.uintVars[keccak256("currentMinerReward")];
 
-        for (uint256 i = 0; i < 5; i++) {
-            if (a[i].miner != address(0)){
-                token.approve(address(this), minerReward);
-                token.transferFrom(address(this), address(vault), minerReward);
-                vault.deposit(a[i].miner, minerReward);
+        if (minerReward != 0){
+            // Pay the miners
+            for (uint256 i = 0; i < 5; i++) {
+                if (a[i].miner != address(0)){
+                    token.approve(address(this), minerReward);
+                    token.transferFrom(address(this), address(vault), minerReward);
+                    vault.deposit(a[i].miner, minerReward);
+                }
             }
+
+            // Pay the devshare
+            token.approve(address(this), zap.uintVars[keccak256('devShare')]);
+            token.transferFrom(
+                address(this),
+                zap.addressVars[keccak256('_owner')],
+                zap.uintVars[keccak256('devShare')]);
         }
 
-        zap.uintVars[keccak256("currentMinerReward")] = 0;
+        zap.uintVars[keccak256('currentMinerReward')] = 0;
     }
 
     /**
@@ -562,7 +575,8 @@ contract Zap {
 
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {
-            doTransfer(msg.sender, address(this), _tip);
+            // doTransfer(msg.sender, address(this), _tip);
+            token.transferFrom(msg.sender, address(this), _tip);
         }
 
         //Update the information for the request that should be mined next based on the tip submitted

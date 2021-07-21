@@ -69,9 +69,6 @@ describe('Did Mine Test', () => {
         const zapLibraryFactory: ContractFactory = await ethers.getContractFactory(
             'ZapLibrary',
             {
-                libraries: {
-                    ZapTransfer: zapTransfer.address
-                },
                 signer: signers[0]
             }
         );
@@ -82,9 +79,6 @@ describe('Did Mine Test', () => {
         const zapDisputeFactory: ContractFactory = await ethers.getContractFactory(
             'ZapDispute',
             {
-                libraries: {
-                    ZapTransfer: zapTransfer.address
-                },
                 signer: signers[0]
             }
         );
@@ -96,8 +90,8 @@ describe('Did Mine Test', () => {
             'ZapStake',
             {
                 libraries: {
-                    ZapTransfer: zapTransfer.address,
-                    ZapDispute: zapDispute.address
+                    ZapDispute: zapDispute.address,
+                    ZapTransfer: zapTransfer.address
                 },
                 signer: signers[0]
             }
@@ -179,8 +173,6 @@ describe('Did Mine Test', () => {
 
             // Connects addresses 1-5 as the signer
             zap = zap.connect(signers[i]);
-
-            
 
             await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, 500000);
 
@@ -293,6 +285,8 @@ describe('Did Mine Test', () => {
         // Parses the getReqQ array from hexStrings to numbers
         const reqQ: number[] = getReqQ.map((item) => parseInt(item._hex));
 
+        let previousZapMasterBal = await zapTokenBsc.balanceOf(zapMaster.address)
+
         for (var i = 1; i <= 5; i++) {
 
             // Connects address 1 as the signer
@@ -327,19 +321,16 @@ describe('Did Mine Test', () => {
         // check to see that the miner receeived the reward and for the proper amount.
         let currentBlock = await ethers.provider.getBlockNumber();
 
-        let previouFifthMinerBal = await zap.getBalanceAt(
-            signers[4].address,
-            currentBlock - 1
-        );
+        // let previouFifthMinerBal = await zap.getBalanceAt(
+        //     signers[4].address,
+        //     currentBlock - 1
+        // );
 
-        let currentFifthMinerBal = await zap.getBalanceAt(
-            signers[4].address,
-            currentBlock
-        );
+        // let currentFifthMinerBal = await zapTokenBsc.balanceOf(signers[4].address);
 
-        let rewardAmount = 15;
-        let diff =
-            parseInt(currentFifthMinerBal._hex) - parseInt(previouFifthMinerBal._hex);
+        // let rewardAmount = 15;
+        // let diff =
+        //     currentFifthMinerBal.sub(previouFifthMinerBal);
 
         // expect(diff).to.equal(
         //     rewardAmount,
@@ -353,27 +344,12 @@ describe('Did Mine Test', () => {
         );
 
         // check to see that Zap Master payed out the correct amount of rewards and devshare.
-        let previousZapMasterBal = await zap.getBalanceAt(
-            zapMaster.address,
-            currentBlock - 1
-        );
-        let currentZapMasterBal = await zap.getBalanceAt(
-            zapMaster.address,
-            currentBlock
-        );
+        let currentZapMasterBal = await zapTokenBsc.balanceOf(zapMaster.address);
 
-        let currentZapMasterWalletBal = await zapTokenBsc.balanceOf(zapMaster.address);
+        // 15 reward amount * 5 miners + 2 dev share = 77 total zap tokens payed out from Zap Master
+        let payOutAmount = 77;
 
-        // // 15 reward amount * 5 miners + 2 dev share = 77 total zap tokens payed out from Zap Master
-        // let payOutAmount = 77;
-        // reward amount goes to vault. only 2 tokens are paid out.
-        let payOutAmount = 2;
-
-        diff =
-            parseInt(previousZapMasterBal._hex) - parseInt(currentZapMasterBal._hex);
+        let diff = previousZapMasterBal.sub(currentZapMasterBal);
         expect(diff).to.equal(payOutAmount);
-
-        let bal = await zapTokenBsc.balanceOf(signers[1].address);
-        expect(bal > balance);
     });
 });

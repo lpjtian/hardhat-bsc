@@ -1,16 +1,15 @@
-import { config as dotEnvConfig } from "dotenv";
+import { config as dotEnvConfig } from 'dotenv';
 dotEnvConfig();
 
-import { HardhatUserConfig } from "hardhat/types";
-require("hardhat-gas-reporter")
+import { HardhatUserConfig } from 'hardhat/types';
+require('hardhat-gas-reporter');
 
-import "hardhat-gas-reporter"
+import 'hardhat-gas-reporter';
 
-
-import "@nomiclabs/hardhat-waffle";
-import "@nomiclabs/hardhat-etherscan";
-import "hardhat-typechain";
-import "hardhat-deploy";
+import '@nomiclabs/hardhat-waffle';
+import '@nomiclabs/hardhat-etherscan';
+import 'hardhat-typechain';
+import 'hardhat-deploy';
 import './tasks/faucet';
 import './tasks/checkbalance';
 import './tasks/checkbalances';
@@ -27,23 +26,24 @@ import './tasks/checkClient';
 import './tasks/verifyZap';
 // import './tasks/mine';
 
-require("hardhat-tracer");
+require('hardhat-tracer');
 
-import { getBSCGasPrice } from './scripts/getGasPrice'
-const fs = require('fs');  // required for reading BSC gas price
+import { getBSCGasPrice } from './scripts/getGasPrice';
+const fs = require('fs'); // required for reading BSC gas price
 
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";
 
-const INFURA_API_KEY = process.env.INFURA_API_KEY || "";
+const INFURA_API_KEY = process.env.INFURA_API_KEY || '';
 const RINKEBY_PRIVATE_KEY =
   process.env.RINKEBY_PRIVATE_KEY! ||
-  "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"; // well known private key
+  '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3'; // well known private key
 const BSC_API_KEY = process.env.BSC_API_KEY;
-const KOVAN_PRIVATE_KEY = process.env.KOVAN_PRIVATE_KEY ||
-  "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
+const KOVAN_PRIVATE_KEY =
+  process.env.KOVAN_PRIVATE_KEY ||
+  '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3';
 
-getBSCGasPrice()
+getBSCGasPrice();
 
 const config = {
   solidity: {
@@ -66,7 +66,7 @@ const config = {
     // Will throw an error if the MNEMONIC env variable is non existent
     // Only used for deploying to the BSC testnet
     testnet: {
-      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
       chainId: 97,
       gasPrice: 20000000000,
       accounts: { mnemonic: process.env.MNEMONIC }
@@ -98,14 +98,14 @@ const config = {
 
 // read BSC gas price and assign the gas reporter and hardhat network's gas price to it
 try {
-  let data = fs.readFileSync("./output/bscGas.txt", 'utf8')
-  data = data.replaceAll('"', '')
-  data = Number.parseInt(data)
-  config.networks.hardhat.gasPrice = data
-  let parsedData = (data / 1000000000).toFixed(2)  // round to 2 decimal places
-  config.gasReporter.gasPrice = Number(parsedData)
+  let data = fs.readFileSync('./output/bscGas.txt', 'utf8');
+  data = data.replaceAll('"', '');
+  data = Number.parseInt(data);
+  config.networks.hardhat.gasPrice = data;
+  let parsedData = (data / 1000000000).toFixed(2); // round to 2 decimal places
+  config.gasReporter.gasPrice = Number(parsedData);
 } catch (err) {
-  console.error(err)
+  console.error(err);
 }
 
 export default config;
