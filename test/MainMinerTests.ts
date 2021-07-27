@@ -78,11 +78,12 @@ describe("Main Miner Functions", () => {
         zapLibrary = (await zapLibraryFactory.deploy()) as ZapLibrary
         await zapLibrary.deployed()
 
-        const zapDisputeFactory: ContractFactory = await ethers.getContractFactory("ZapDispute", {
-
+        const zapDisputeFactory: ContractFactory =
+          await ethers.getContractFactory('ZapDispute', {
+            libraries: {
+              ZapTransfer: zapTransfer.address            },
             signer: signers[0]
-
-        });
+          });
 
         zapDispute = (await zapDisputeFactory.deploy()) as ZapDispute
         await zapDispute.deployed();
@@ -175,7 +176,7 @@ describe("Main Miner Functions", () => {
             expect(approval).to.equal(BigNumber.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9b"));
 
             // increase approval of vault
-            master.increaseVaultApproval(vault.address);
+            master.increaseVaultApproval();
 
             // approval sohuld be max uint256
             approval = await zapTokenBsc.allowance(vault.address, zapMaster.address);
