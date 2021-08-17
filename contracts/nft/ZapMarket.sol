@@ -60,6 +60,15 @@ contract ZapMarket is IMarket {
         _;
     }
 
+    modifier onlyMediaCallerTest(address mediaContractAddress) {
+        console.log("Sender", mediaContractAddress, mediaContract[mediaContractAddress], msg.sender);
+        require(
+            mediaContract[mediaContractAddress] == msg.sender,
+            "Market: Only media contract"
+        );
+        _;
+    }
+
     /* ****************
      * View Functions
      * ****************
@@ -128,7 +137,8 @@ contract ZapMarket is IMarket {
         return
             bidShares.creator.value.add(bidShares.owner.value).add(
                 bidShares.prevOwner.value
-            ) == uint256(100).mul(Decimal.BASE);
+            ) == uint256(100);
+            // ) == uint256(100).mul(Decimal.BASE);
     }
 
     /**
@@ -180,10 +190,10 @@ contract ZapMarket is IMarket {
      * @notice Sets bid shares for a particular tokenId. These bid shares must
      * sum to 100.
      */
-    function setBidShares(uint256 tokenId, BidShares memory bidShares)
+    function setBidShares(address mediaContractAddress, uint256 tokenId, BidShares memory bidShares)
         public
         override
-        onlyMediaCaller
+        onlyMediaCallerTest(mediaContractAddress)
     {
         require(
             isValidBidShares(bidShares),

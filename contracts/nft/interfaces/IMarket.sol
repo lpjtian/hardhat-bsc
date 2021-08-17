@@ -65,7 +65,7 @@ interface IMarket {
         view
         returns (bool);
 
-    function isValidBidShares(BidShares calldata bidShares)
+   function isValidBidShares(BidShares calldata bidShares)
         external
         pure
         returns (bool);
@@ -77,7 +77,7 @@ interface IMarket {
 
     function configure(address mediaContractAddress) external;
 
-    function setBidShares(uint256 tokenId, BidShares calldata bidShares)
+    function setBidShares(address mediaContractAddress, uint256 tokenId, BidShares calldata bidShares)
         external;
 
     function setAsk(uint256 tokenId, Ask calldata ask) external;

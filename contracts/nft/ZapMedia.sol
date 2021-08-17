@@ -498,7 +498,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
 
         tokenCreators[tokenId] = creator;
         previousTokenOwners[tokenId] = creator;
-        IMarket(marketContract).setBidShares(tokenId, bidShares);
+        address mediaContractAddress = address(this);
+        IMarket(marketContract).setBidShares(mediaContractAddress, tokenId, bidShares);
     }
 
     function _setTokenContentHash(uint256 tokenId, bytes32 contentHash)
